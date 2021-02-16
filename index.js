@@ -22,14 +22,16 @@ app.use(express.urlencoded({
 app.use(cookieParser())
 
 const session = require('express-session');
-const sessionStore = new (require('express-mysql-session')(session))({}, db);
+const sessionStore = new(require('express-mysql-session')(session))({}, db);
 const sessionMiddleware = session({
-  store: sessionStore,
-  secret: "Большой секрет",
-  resave: false,
-  saveUninitialized: false,
-  rolling: true,
-  cookie: { maxAge: 600000 }
+    store: sessionStore,
+    secret: "Большой секрет",
+    resave: false,
+    saveUninitialized: false,
+    rolling: true,
+    cookie: {
+        maxAge: 600000
+    }
 });
 
 app.use(sessionMiddleware);
@@ -46,82 +48,48 @@ app.set('view engine', 'hbs');
 app.set('views', __dirname + '/views');
 
 
-//const pool = mysql2.createPool(config).promise();
 
-let options = {
-    name: '',
-    begin: true,
-    list: false,
-    update: false,
-    todo: [],
-
-
-}
-
-let todoItem = {
-    done: false,
-    title: ''
-}
-
-async function findId(num) {
-    let todo = await task.list(options.name)
-    if (num <= todo.length) {
-        id = todo[num - 1].id
-    }
-    return id
-}
 
 const router = require('./routers');
+
+var passport = require('passport');
+var GoogleStrategy = require('passport-google-oauth').OAuthStrategy;
+const googleAuth = require('./config/OAuth.js')
+
+// Use the GoogleStrategy within Passport.
+//   Strategies in passport require a `verify` function, which accept
+//   credentials (in this case, a token, tokenSecret, and Google profile), and
+//   invoke a callback with a user object.
+passport.use(new GoogleStrategy({
+        consumerKey: googleAuth.idClient,
+        consumerSecret: googleAuth.secretCode,
+        callbackURL: "http://localhost:3000/auth/google/callback"
+    },
+    function (token, tokenSecret, profile, done) {
+        User.findOrCreate({
+            googleId: profile.id
+        }, function (err, user) {
+            return done(err, user);
+        });
+    }
+));
+
+passport.serializeUser(function(user, done){
+    done(null, user)
+})
+
+passport.deserializeUser(function(username, done){
+    done(null, user)
+})
+
+app.use(passport.initialize())
+
+app.use(passport.session())
 
 app.use(router);
 
 router.use('/', controllers.main.indexPage);
 
-app.get('/task', (req, res) => {
-    console.log('cookie = ', req.cookies)
-    if (req.cookies.name) {
-
-        options.name = req.cookies.name
-    }
-    options.begin = true
-    options.list = false
-
-    console.log('options = ', options)
-    res.render('form', options)
-})
-
-app.post('/create', async (req, res) => {
-    if (!req.cookies || !req.cookies.name || req.cookies.name != req.body.name) {
-        res.cookie('name', req.body.name)
-    }
-    controllers.task.create(req,res)
-
-})
-
-app.post('/insert', async (req, res) => {
-
-    
-    controllers.task.insert(req,res)
-
-})
-
-app.post('/delete', async (req, res) => {
-
-
-    controllers.task.delete(req,res)
-
-})
-
-app.post('/update', async (req, res) => {
-
-    controllers.task.update(req,res)
-})
-
-
-app.get('/cache', (req, res) => {
-    console.log(Object.entries(cache));
-    res.render('cache', cache);
-});
 
 
 
