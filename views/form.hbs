@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tranlate service</title>
+</head>
+
+<body>
+
+    {{#if error }}
+        <p>Error. Please try later</p>
+    {{/if}}
+    {{#if begin }}
+        <p>Enter your name. Create or open your TODO list</p>
+    {{/if}}
+    <form method="POST" action="/task/create">
+        <label>
+
+            <input id='name' type="text" name="name" value="{{name}}" />
+        </label><br>
+        {{#if begin }}
+            <button type="submit">TODO list</button>
+        {{/if}}
+    </form>
+    
+    {{#if list }}
+        <ol>
+            {{#each todo}}
+                <li>{{ this }}</li>
+            {{/each}}
+        </ol>
+        <br><br><br>
+        <form method="POST" action="/task/insert">
+
+            <p><input type="checkbox" name="done" value='0'> TODO
+                <input type="hidden" name="done" value='1'>
+            </p>
+            <label>
+                <input id='title' type="text" name="title" />
+            </label><br>
+
+            <button type="submit">INSERT</button>
+
+        </form>
+        <br>
+        <form method="POST" action="/task/delete">
+
+
+            <label>Input number of deleted record:
+                <input id='title' type="number" name="num" min='1' />
+            </label><br>
+
+            <button type="submit">DELETE</button>
+
+        </form>
+        <br><br>
+        <form method="POST" action="/ task/update">
+
+
+            <label>Input number of updated record:
+                <input id='title' type="number" name="num" min='1' />
+
+            </label><br>
+            <p><input type="checkbox" name="done" value='0'> TODO
+                <input type="hidden" name="done" value='1'>
+            </p>
+            <label>
+                <input id='title' type="text" name="title" />
+            </label><br>
+
+            <button type="submit">UPDATE</button>
+
+        </form>
+
+    {{/if}}
+    
+    <form method="POST" action="/auth/logout/">
+        <button type="submit">Выйти</button>
+    </form>  
+
+
+
+    
+
+
+
+</body>
+
+</html>

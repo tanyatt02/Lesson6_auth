@@ -1,0 +1,17 @@
+<form method="POST" action="/auth/login/">
+    <label>
+        Имя пользователя
+        <input type="text" name="username" required="required" placeholder="Введите ваш логин" value="{{username}}" >
+    </label><br>
+    <label>
+        Пароль
+        <input type="password" name="password" required="required" placeholder="Введите ваш пароль">
+    </label><br>
+    
+    <p><input type="checkbox" name="mem" value='0'> Запомнить
+                <input type="hidden" name="mem" value='1'>
+            </p>
+    
+    <button type="submit">Войти</button>
+    
+</form>
